@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.smbms.dao.user.UserDao">
+    <!--查询-->
+    <select id="getLoginUser" resultType="user">
+        select * from smbms_user
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="userCode != null and userCode != ''">
+                and userCode=#{userCode}
+            </if>
+        </trim>
+    </select>
+    <!--分页查询-->
+    <select id="getUserList" resultType="user">
+        select u.*,r.roleName as userRoleName from smbms_user u,smbms_role r
+        <trim prefix="where" prefixOverrides="and|or">
+            u.userRole = r.id
+            <if test="userName != null and userName != ''">
+                and u.userName like CONCAT('%', #{userName}, '%')
+            </if>
+            <if test="userRole != null and userRole != ''">
+                and u.userRole = #{userRole}
+            </if>
+        </trim>
+        order by creationDate DESC limit #{currentPageNo},#{pageSize}
+    </select>
+    <!--通过条件查询-用户表记录数-->
+    <select id="getUserCount" resultType="int">
+        select count(1) as count from smbms_user u,smbms_role r
+        <trim prefix="where" prefixOverrides="and|or">
+            u.userRole = r.id
+            <if test="userName != null and userName != ''">
+                and u.userName like CONCAT('%', #{userName}, '%')
+            </if>
+            <if test="userRole != null and userRole != ''">
+                and u.userRole = #{userRole}
+            </if>
+        </trim>
+    </select>
+    <!--通过id查询user-->
+    <select id="getUserById" resultType="user">
+        select u.*,r.roleName as userRoleName from smbms_user u,smbms_role r
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="id != null and id != ''">
+                and u.id=#{id}
+            </if>
+            and u.userRole = r.id
+        </trim>
+    </select>
+    <!--插入-->
+    <insert id="add" parameterType="user">
+      insert into smbms_user (userCode,userName,userPassword,userRole,gender,birthday,phone,address,creationDate,createdBy,picPath)
+      values(#{userCode},#{userName},#{userPassword},#{userRole},#{gender},#{birthday},#{phone},#{address},#{creationDate},#{modifyBy},#{picPath})
+    </insert>
+    <!--删除-->
+    <delete id="deleteUserById" parameterType="int">
+        delete from smbms_user
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="delId != null and delId!=''">
+                and id = #{delId}
+            </if>
+        </trim>
+    </delete>
+    <!--修改当前信息-->
+    <update id="modify" parameterType="user">
+        update smbms_user
+        set userName=#{userName},gender=#{gender},
+        birthday=#{birthday},phone=#{phone},
+        address=#{address},userRole=#{userRole},
+        modifyBy=#{modifyBy},modifyDate=#{modifyDate}
+        where id = #{id}
+        <!--<trim prefix="set" suffixOverrides="," suffix="where id = #{id}">-->
+        <!--<if test="userName!=null and userName!=''">and userName=#{userName},</if>-->
+        <!--<if test="gender!=null and gender!=''">and gender=#{gender},</if>-->
+        <!--<if test="birthday!=null and birthday!=''">and birthday=#{birthday},</if>-->
+        <!--<if test="phone!=null and phone!=''">and phone=#{phone},</if>-->
+        <!--<if test="address!=null and address!=''">and address=#{address},</if>-->
+        <!--<if test="userRole!=null and userRole!=''">and userRole=#{userRole},</if>-->
+        <!--<if test="umodifyBy!=null and umodifyBy!=''">and modifyBy=#{modifyBy},</if>-->
+        <!--<if test="modifyDate!=null and modifyDate!=''">and modifyDate=#{modifyDate},</if>-->
+        <!--</trim>-->
+    </update>
+    <!--修改密码-->
+    <update id="updatePwd">
+        update smbms_user set userPassword= #{pwd} where id = #{id}
+    </update>
+</mapper>

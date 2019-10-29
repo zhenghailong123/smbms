@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.smbms.dao.bill.BillDao">
+    <!--根据供应商ID查询订单数量-->
+    <select id="getBillCountByProviderId" resultType="int">
+         select count(1) as billCount from smbms_bill
+         <trim prefix="where" prefixOverrides="and|or">
+            and providerId = #{providerId}
+         </trim>
+    </select>
+    <!--通过查询条件获取供应商列表-模糊查询-getBillList-->
+    <select id="getBillList" resultType="bill">
+        select b.*,p.proName as providerName from smbms_bill b, smbms_provider p
+        <trim prefix="where" prefixOverrides="and|or">
+            b.providerId = p.id
+            <if test="productName!=null and productName!=''">
+                and productName like CONCAT('%', #{productName}, '%')
+            </if>
+            <if test="providerId!=null and providerId!=''">
+                and providerId = #{providerId}
+            </if>
+            <if test="isPayment!=null and isPayment!=''">
+                and isPayment = #{isPayment}
+            </if>
+        </trim>
+    </select>
+    <!--增加订单-->
+    <insert id="add" parameterType="bill">
+        insert into smbms_bill (billCode, productName, productDesc, productUnit, productCount, totalPrice, isPayment, createdBy, providerId, creationDate)
+        values(#{billCode},#{productName},#{productDesc},#{productUnit},#{productCount},#{totalPrice},#{isPayment},#{createdBy},#{providerId},#{creationDate})
+    </insert>
+    <!--修改订单信息--> 
+    <update id="modify" parameterType="bill">
+        update smbms_bill set
+        productName=#{productName},productDesc=#{productDesc},
+        productUnit=#{productUnit},productCount=#{productCount},
+        totalPrice=#{totalPrice},isPayment=#{isPayment},
+        providerId=#{providerId},modifyBy=#{modifyBy},
+        modifyDate=#{modifyDate}
+        where id = #{id}
+    </update>
+    <!--通过billId获取Bill-->
+    <select id="getBillById" resultType="bill">
+      select b.*,p.proName as providerName from smbms_bill b,smbms_provider p
+      <trim prefix="where" prefixOverrides="and|or">
+          b.providerId = p.id
+          <if test="bid!=null and bid!=''">
+              and b.id=#{bid}
+          </if>
+      </trim>
+    </select>
+    <!--通过delId删除Bill-->
+    <delete id="deleteBillById">
+        delete from smbms_bill where id=#{delId}
+    </delete>
+</mapper>

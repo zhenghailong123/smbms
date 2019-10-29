@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.smbms.dao.provider.ProviderDao">
+    <!--通过供应商名称、编码获取供应商列表-模糊查询-providerList-->
+    <select id="getProviderList" resultType="provider">
+        select * from smbms_provider
+        <trim prefix="where" prefixOverrides="and|or">
+            1=1
+            <if test="proName!=null and proName!=''">
+                and proName like CONCAT('%', #{proName}, '%')
+            </if>
+            <if test="proCode!=null and proCode!=''">
+                and proCode like CONCAT('%', #{proCode}, '%')
+            </if>
+        </trim>
+    </select>
+    <!--增加供应商-->
+    <insert id="add" parameterType="provider">
+        insert into smbms_provider (proCode,proName,proDesc,proContact,proPhone,proAddress,proFax,createdBy,creationDate)
+		values(#{proCode},#{proName},#{proDesc},#{proContact},#{proPhone},#{proAddress},#{proFax},#{createdBy},#{creationDate})
+    </insert>
+    <!--通过proId删除Provider-->
+    <delete id="deleteProviderById">
+        delete from smbms_provider
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="delId!=null and delId!=''">
+                and id=#{delId}
+            </if>
+        </trim>
+    </delete>
+    <!--修改供应商信息-->
+    <update id="modify" parameterType="provider">
+        update smbms_provider set
+        proName=#{proName},proDesc=#{proDesc},
+        proContact=#{proContact},proPhone=#{proPhone},
+        proAddress=#{proAddress},proFax=#{proFax},
+        modifyBy=#{modifyBy},modifyDate=#{modifyDate}
+        where id = #{id}
+    </update>
+    <!--通过proId获取Provider-->
+    <select id="getProviderById" resultType="provider">
+        select * from smbms_provider
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="id!=null and id!=''">
+                and id=#{id}
+            </if>
+        </trim>
+    </select>
+</mapper>
